@@ -1,5 +1,11 @@
 (ns celine.core
-  (:gen-class :main :true))
+  (:require [celine.geometry :as geometry])
+  (:import (celine.geometry Vector3D))
+  (:gen-class :main :true)
+)
 
-(defn -main [& args] (println "hello world!"))
+
+(def origin (Vector3D. 0.0 0.0 0.0))
+
+(defn -main [& args] (println origin))
 
