@@ -1,4 +1,4 @@
-(ns app.test.core
+(ns celine.test.core
   (:use [app.core])
   (:use [clojure.test]))
 
