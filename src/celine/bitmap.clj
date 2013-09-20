@@ -9,10 +9,14 @@
 (deftype Pixel [x y color])
 
 (defn create-pixel [x y color]
+  "proxy function for pixel creation
+   so we dont have to import the pixel type
+   in the other modules"
   (Pixel. x y color)
 )
 
 (defn draw-png [width height pix-list img-name]
+  "creates a png image from the given sequence of pixels"
   {:pre [(= (count pix-list) (* width height))]}
   (let [img (BufferedImage. width height BufferedImage/TYPE_INT_RGB)]
     (doseq [px pix-list]
