@@ -24,7 +24,8 @@
 
 (defn make-r-color [r g b]
   "proxy constructor for r-color checking input parameters"
-  {:pre [(<= r 1.0) (>= r 0.0)
+  {:pre [false
+         (<= r 1.0) (>= r 0.0)
          (<= g 1.0) (>= g 0.0)
          (<= b 1.0) (>= b 0.0)
         ]
