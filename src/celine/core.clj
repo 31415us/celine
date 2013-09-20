@@ -12,8 +12,8 @@
 (def origin (Vector3D. 0.0 0.0 0.0))
 (def some-color (color/make-r-color 0.2 0.3 0.5))
 
-(def width 50)
-(def height 50)
+(def width 720)
+(def height 405)
 
 (defn nxt-px [px]
   (let [condition (< (.x px) (dec width))

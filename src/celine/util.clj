@@ -8,7 +8,7 @@
   (loop [seed _seed
          step _step
          end _end-predicate
-         acc (lazy-seq)
+         acc ()
         ]
     (if (end seed)
       (cons seed acc)
