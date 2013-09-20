@@ -2,6 +2,7 @@
 (ns celine.color)
 
 (defprotocol Color
+  "protocol specifying the basic operations a color should support"
   (pack-as-sRGB [color])
   (pack-as-RGB [color])
   (change-brightness [color factor])
