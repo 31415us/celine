@@ -1,17 +1,49 @@
 
-(ns celine.geometry)
+(ns celine.geometry
+  (:require [celine.util :as util])
+)
 
+(defprotocol GeomObject
+  (intersect [ray obj])
+)
 
 (deftype Vector3D [x y z]
   Object
   (toString [v] (str "(" x "," y "," z ")"))
 )
 
-(defn create-vector [x y z]
+(deftype Vertex [point normal]
+  Object
+  (toString [vtx] 
+    (str "Vertex at: " point " with normal vector: " normal)
+  )
+)
+
+(deftype Ray [origin dir]
+  Object
+  (toString [ray]
+    (str "Ray with origin: " origin " in direction: " dir)
+  )
+)
+
+(defn make-vector [x y z]
   "proxy function to create vectors
   so we dont have to import the vector type"
   (Vector3D. x y z)
 )
+
+(defn make-ray [o dir]
+  "create a ray"
+  (Ray. o dir)
+)
+
+(def e1 (Vector3D. 1.0 0.0 0.0))
+(def e2 (Vector3D. 0.0 1.0 0.0))
+(def e3 (Vector3D. 0.0 0.0 1.0))
+(def -e1 (Vector3D. -1.0 0.0 0.0))
+(def -e2 (Vector3D. 0.0 -1.0 0.0))
+(def -e3 (Vector3D. 0.0 0.0 -1.0))
+(def origin (Vector3D. 0.0 0.0 0.0))
 
 (defn dot [u v]
   "compute the dot product of two vectors"
@@ -59,4 +91,52 @@
   "multiply vector v by scalar value k"
   (Vector3D. (* k (.x v)) (* k (.y v)) (* k (.z v)))
 )
+
+(def ray-sphere-intersection-vertex)
+
+(deftype Sphere [center radius]
+  GeomObject
+  (intersect [ray sph] (ray-sphere-intersection-vertex [ray sph]))
+
+  Object
+  (toString [sph] (str "sphere at: " center " with radius: " radius))
+)
+
+(defn- ray-sphere-intersection-point [ray sph]
+  "returns the intersection point bnetween 
+   ray and sphere or nil if they dont intersect"
+  (let [d (.direction ray)
+        OC (sub (.origin ray) (.center sph))
+        r (.radius sph)
+        a (dot d d)
+        b (* 2.0 (dot OC d))
+        c (- (dot OC OC) (* r r))]
+    (if-let [sol (util/solve-quadratic a b c)]
+      (let [fst (first sol)
+            snd (second sol)
+            t0 (min fst snd)
+            t1 (max fst snd) 
+           ]
+        (cond
+          (> 0.0 t1) nil
+          (> 0.0 t0) (add (.origin ray) (scalar-mult d t1))
+          :else (add (.origin ray) (scalar-mult d t0))
+        )
+      )
+      nil
+    )
+  )
+)
+
+(defn- ray-sphere-intersection-vertex [ray sph]
+  "returns the vertex of intersection between 
+   ray and sphere or nil if they dont intersect"
+  (if-let [inter (ray-sphere-intersection-point ray sph)]
+    (let [norm (normalize (sub inter (.center sph)))] 
+      (Vertex. inter norm)
+    )
+    nil
+  )
+)
+
 
