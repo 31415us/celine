@@ -17,3 +17,28 @@
   )
 )
 
+(defn- get-q [b discr]
+  "helper function for solve-quadratic
+   for numerical stability as proposed in:
+   http://wiki.cgsociety.org/index.php/Ray_Sphere_Intersection"
+  (let [root (Math/sqrt discr)]
+    (if (> 0.0 b)
+      (/ (- root b) 2.0)
+      (/ (- (- root) b) 2.0)
+    )
+  )
+)
+
+(defn solve-quadratic [a b c]
+  "solve quadratic equation of the form:
+   a*x^2 + b*x + c = 0"
+  (let [discr (- (* b b) (* 4.0 a c))]
+    (if (> 0.0 discr)
+      nil
+      (let [q (get-q b discr)] 
+        [(/ q a) (/ c q)]
+      )
+    )
+  )
+)
+
