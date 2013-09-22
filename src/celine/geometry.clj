@@ -4,7 +4,8 @@
 )
 
 (defprotocol GeomObject
-  (intersect [ray obj])
+  (intersect [obj ray])
+  (displace [obj v])
 )
 
 (deftype Vector3D [x y z]
@@ -96,13 +97,14 @@
 
 (deftype Sphere [center radius]
   GeomObject
-  (intersect [ray sph] (ray-sphere-intersection-vertex [ray sph]))
+  (intersect [sph ray] (ray-sphere-intersection-vertex [ray sph]))
+  (displace [sph v] (Sphere. (add center v) radius))
 
   Object
   (toString [sph] (str "sphere at: " center " with radius: " radius))
 )
 
-(defn- ray-sphere-intersection-point [ray sph]
+(defn- ray-sphere-intersection-point [sph ray]
   "returns the intersection point bnetween 
    ray and sphere or nil if they dont intersect"
   (let [d (.direction ray)
@@ -128,10 +130,10 @@
   )
 )
 
-(defn- ray-sphere-intersection-vertex [ray sph]
+(defn- ray-sphere-intersection-vertex [sph ray]
   "returns the vertex of intersection between 
    ray and sphere or nil if they dont intersect"
-  (if-let [inter (ray-sphere-intersection-point ray sph)]
+  (if-let [inter (ray-sphere-intersection-point sph ray)]
     (let [norm (normalize (sub inter (.center sph)))] 
       (Vertex. inter norm)
     )
