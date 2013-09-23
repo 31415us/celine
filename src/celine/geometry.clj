@@ -20,6 +20,12 @@
   )
 )
 
+(defn make-vector [x y z]
+  "proxy function to create vectors
+  so we dont have to import the vector type"
+  (Vector3D. x y z)
+)
+
 (deftype Ray [origin dir]
   Object
   (toString [ray]
@@ -27,11 +33,6 @@
   )
 )
 
-(defn make-vector [x y z]
-  "proxy function to create vectors
-  so we dont have to import the vector type"
-  (Vector3D. x y z)
-)
 
 (defn make-ray [o dir]
   "create a ray"
