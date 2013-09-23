@@ -8,7 +8,7 @@
 
 (deftype Pixel [x y color])
 
-(defn create-pixel [x y color]
+(defn make-pixel [x y color]
   "proxy function for pixel creation
    so we dont have to import the pixel type
    in the other modules"
