@@ -7,6 +7,12 @@
   (:require [celine.util :as util])
 )
 
+(defn shade [ray scene]
+  (if-let [intersection (intersect scene ray)]
+    (.base-color intersection)
+    (color/black)
+  )
+)
 
 (defn render-scene [scene])
 

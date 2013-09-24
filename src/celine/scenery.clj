@@ -8,13 +8,52 @@
   (light-dir [light point])
 )
 
-(deftype Scene-Element [geom-obj base-color])
+(deftype Colored-Vertex [vertex base-color])
+
+(deftype Scene-Element [geom-obj base-color]
+  geom/GeomObject
+  (intersect [elem ray]
+    (Colored-Vertex. (intersect geom-obj ray) base-color)
+  )
+  (displace [elem v]
+    (Scene-Element. (displace geom-obj v) base-color)
+  )
+)
 
 (defn make-scene-element [obj color]
   (Scene-Element. obj color)
 )
 
-(deftype Scene [cam screen elements lights])
+(defn- comp-nearer-to-ray-origin [ray c-vert1 c-vert2]
+  (let [d1 (geom/dist (.origin ray) (.point (.vertex c-vert1)))
+        d2 (geom/dist (.origin ray) (.point (.vertex c-vert2)))
+       ]
+    (< d1 d2)
+  )
+)
+
+(deftype Scene [cam screen elements lights]
+  geom/GeomObject
+  (intersect [scene ray]
+    (let [intersections (filter identity (map #(geom/intersect % ray) (.objects scene)))
+          nb-intersections (count intersections)
+         ]
+      (case nb-intersections
+        0 nil
+        1 (first intersections)
+        (first (sort (comp #(comp-nearer-to-ray-origin ray %1 %2)) intersections))
+      )
+    )
+  )
+  (displace [scene v]
+    (let [-v (geom/sub geom/origin v)
+          new-cam (Camera. (geom/add -v (.pos cam)) (.forward cam) (.right cam) (.down cam))
+          new-screen (Screen. (geom/add -v (.top-left-corner screen)) (.right screen) (.down screen))
+         ]
+      (Scene. new-cam new-screen elements lights)
+    )
+  )
+)
 
 (deftype Camera [pos forward right down])
 
