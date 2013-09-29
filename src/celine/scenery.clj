@@ -109,6 +109,10 @@
   (light-dir [light point] (geom/normalize (geom/sub pos point)))
 )
 
+(defn make-positional-light-source [position]
+  (Positional-Light. position)
+)
+
 (deftype Directional-Light [dir]
   Light
   (light-dir [light point] dir)

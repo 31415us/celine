@@ -74,6 +74,10 @@
   )
 )
 
+(defn triple [a b c]
+  (dot a (cross b c))
+)
+
 (defn add [u v]
   "add vector u and v -> u + v"
   (Vector3D. (+ (.x u) (.x v)) (+ (.y u) (.y v)) (+ (.z u) (.z v)))
@@ -82,6 +86,10 @@
 (defn sub [u v]
   "subtract v from u -> u - v"
   (Vector3D. (- (.x u) (.x v)) (- (.y u) (.y v)) (- (.z u) (.z v)))
+)
+
+(defn neg [u]
+  (Vector3D. (- (.x u)) (- (.y u)) (- (.z u)))
 )
 
 (defn dist [u v]
@@ -144,6 +152,77 @@
     )
     nil
   )
+)
+
+(defn- ray-plane-intersection-point [pln ray]
+  (let [dot-point-normal (dot (.point pln) (.normal pln))
+        dot-origin-normal (dot (.origin ray) (.normal pln))
+        dot-dir-normal (dot (.dir ray) (.normal pln))
+       ]
+    (if (= dot-dir-normal 0.0)
+      nil
+      (let [t (/ (- dot-point-normal dot-origin-normal) dot-dir-normal)]
+        (if (>= t 0.0)
+          (add (.origin ray) (scalar-mult (.dir ray) t))
+          nil
+        )
+      )
+    )
+  )
+)
+
+(deftype Plane [point normal]
+  GeomObject
+  (intersect [pln ray]
+    (if-let [p (ray-plane-intersection-point pln ray)]
+      (Vertex. p normal)
+      nil
+    )
+  )
+  (displace [pln v] (Plane. (add point v) normal))
+)
+
+(defn make-plane [point normal]
+  (Plane. point (normalize normal))
+)
+
+(defn- ray-triangle-intersection-point [tr ray]
+  "implementation of the möller-trumbore algorithm as described in:
+  http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-9-ray-triangle-intersection/m-ller-trumbore-algorithm/"
+  (let [-D (neg (.dir ray))
+        T (sub (.origin ray) (.a tr))
+        E1 (sub (.b tr) (.a tr))
+        E2 (sub (.c tr) (.a tr))
+        det (triple -D E1 E2)
+       ]
+    (if (= 0.0 det)
+      nil
+      (let [v (/ (triple -D E1 T) det)]
+        (if (or (> v 1.0) (< v 0.0))
+          nil
+          (let [u (/ (triple -D T E2) det)]
+            (if (or (> u 1.0) (< v 0.0))
+              nil
+              (let [t (/ (triple T E1 E2) det)]
+                (add (.origin ray) (scalar-mult (.dir ray) t))
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+(deftype Triangle [a b c]
+  GeomObject
+  (intersect [tr ray]
+    (if-let [p (ray-triangle-intersection-point tr ray)]
+      (Vertex. p (cross (sub b a) (sub c a)))
+      nil
+    )
+  )
+  (displace [tr v] (Triangle. (add a v) (add b v) (add c v)))
 )
 
 

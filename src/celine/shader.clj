@@ -3,13 +3,34 @@
   (:require [celine.bitmap :as bitmap])
   (:require [celine.color :as color])
   (:require [celine.geometry :as geom])
-  (:require [celine.scenery :as scene])
+  (:require [celine.scenery :as scenery])
   (:require [celine.util :as util])
+)
+
+(defn- cel-shading-modificator [cos-angle]
+  (cond
+    (> cos-angle 0.95) 1.1
+    (> cos-angle 0.0) 1.0
+    :else 0.5
+  )
 )
 
 (defn shade [ray scene]
   (if-let [intersection (geom/intersect scene ray)]
-    (.base-color intersection)
+    (let [modificator (apply * 
+                             (map 
+                               #(cel-shading-modificator
+                                 (geom/dot 
+                                  (geom/normalize (.normal (.vertex intersection)))
+                                  (geom/normalize (scenery/light-dir % (.point (.vertex intersection))))
+                                 ) 
+                               )
+                               (.lights scene)
+                              )
+                      )
+         ]
+      (color/change-brightness (.base-color intersection) modificator)
+    )
     color/black
   )
 )
@@ -20,7 +41,7 @@
         ray (geom/make-ray 
               (.pos (.cam scene))
               (geom/sub 
-                (scene/pixel-position (.screen scene) new-x new-y)
+                (scenery/pixel-position (.screen scene) new-x new-y)
                 (.pos (.cam scene))
               )
             )
@@ -39,7 +60,7 @@
         first-ray (geom/make-ray
                     (.pos (.cam scene))
                     (geom/sub
-                      (scene/pixel-position (.screen scene) first-x first-y)
+                      (scenery/pixel-position (.screen scene) first-x first-y)
                       (.pos (.cam scene))
                     )
                   )
@@ -49,7 +70,7 @@
   )
 )
 
-(defn render-scene [scene]
+(defn render-scene [scene image-name]
   (let [px-list (flatten 
                   (concat 
                     (map 
@@ -59,7 +80,7 @@
                   )
                 )
        ]
-    (bitmap/draw-png (.px-width (.screen scene)) (.px-height (.screen scene)) px-list "img.png")
+    (bitmap/draw-png (.px-width (.screen scene)) (.px-height (.screen scene)) px-list image-name)
   )
 )
 
