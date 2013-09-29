@@ -98,17 +98,21 @@
 
 (deftype Sphere [center radius]
   GeomObject
-  (intersect [sph ray] (ray-sphere-intersection-vertex [ray sph]))
+  (intersect [sph ray] (ray-sphere-intersection-vertex sph ray))
   (displace [sph v] (Sphere. (add center v) radius))
 
   Object
   (toString [sph] (str "sphere at: " center " with radius: " radius))
 )
 
+(defn make-sphere [center r]
+  (Sphere. center r)
+)
+
 (defn- ray-sphere-intersection-point [sph ray]
   "returns the intersection point bnetween 
    ray and sphere or nil if they dont intersect"
-  (let [d (.direction ray)
+  (let [d (.dir ray)
         OC (sub (.origin ray) (.center sph))
         r (.radius sph)
         a (dot d d)
