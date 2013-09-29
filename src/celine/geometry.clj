@@ -201,10 +201,13 @@
         (if (or (> v 1.0) (< v 0.0))
           nil
           (let [u (/ (triple -D T E2) det)]
-            (if (or (> u 1.0) (< v 0.0))
+            (if (or (> u 1.0) (< u 0.0))
               nil
               (let [t (/ (triple T E1 E2) det)]
-                (add (.origin ray) (scalar-mult (.dir ray) t))
+                (if (> (+ u v) 1.0)
+                  nil
+                  (add (.origin ray) (scalar-mult (.dir ray) t))
+                )
               )
             )
           )
@@ -218,11 +221,46 @@
   GeomObject
   (intersect [tr ray]
     (if-let [p (ray-triangle-intersection-point tr ray)]
-      (Vertex. p (cross (sub b a) (sub c a)))
+      (Vertex. p (normalize (cross (sub b a) (sub c a))))
       nil
     )
   )
   (displace [tr v] (Triangle. (add a v) (add b v) (add c v)))
+)
+
+(defn make-triangle [a b c]
+  (Triangle. a b c)
+)
+
+(defn- nearer-to-ray-origin [ray v1 v2]
+  (let [d1 (dist (.origin ray) (.point v1))
+        d2 (dist (.origin ray) (.point v2))
+       ]
+    (< d1 d2)
+  )
+)
+
+(deftype Triangle-Mesh [triangles]
+  GeomObject
+  (intersect [mesh ray]
+    (let [intersections (filter identity (map #(intersect % ray) triangles))
+          nb-intersections (count intersections)
+         ]
+      (case nb-intersections
+        0 nil
+        1 (first intersections)
+        (first (sort (comp #(nearer-to-ray-origin ray %1 %2)) intersections))
+      )
+    )
+  )
+
+  (displace [mesh v]
+    (Triangle-Mesh. (map #(displace %) triangles))
+  )
+)
+
+(defn make-triangle-mesh [triangles]
+  (Triangle-Mesh. triangles)
 )
 
 

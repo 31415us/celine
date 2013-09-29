@@ -26,10 +26,13 @@
 (def pln2 (geom/make-plane (geom/make-vector 10.0 0.0 0.0) geom/-e1))
 (def elem4 (scenery/make-scene-element pln2 color/blue))
 
+(def tr1 (geom/make-triangle (geom/make-vector 5.0 -1.0 -1.0) (geom/make-vector 5.0 1.0 -1.0) (geom/make-vector 5.0 -1.0 1.0)))
+(def elem5 (scenery/make-scene-element tr1 (color/make-r-color 0.1 0.4 0.2)))
+
 (def light1 (scenery/make-positional-light-source (geom/make-vector 0.0 5.0 10.0)))
 (def light2 (scenery/make-positional-light-source (geom/make-vector 5.0 -5.0 10.0)))
 
-(def scene (scenery/make-scene cam screen (list elem1 elem2 elem3 elem4) (list light1)))
+(def scene (scenery/make-scene cam screen (list elem5) (list light1)))
 
 (defn -main [& args] (shader/render-scene scene "img.png"))
 
