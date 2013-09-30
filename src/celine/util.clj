@@ -42,3 +42,19 @@
   )
 )
 
+(defn lazy-file-lines [path]
+  "transforms a file into a lazy
+  sequence of lines as seen here:
+  http://stackoverflow.com/questions/4118123/read-a-very-large-text-file-into-a-list-in-clojure"
+  (letfn [(helper [rdr]
+            (lazy-seq
+              (if-let [line (.readLine rdr)]
+                (cons line (helper rdr))
+                (do (.close rdr) nil)
+              )
+            )
+          )]
+    (helper  (clojure.java.io/reader path))
+  )
+)
+

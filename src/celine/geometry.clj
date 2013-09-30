@@ -255,7 +255,7 @@
   )
 
   (displace [mesh v]
-    (Triangle-Mesh. (map #(displace %) triangles))
+    (Triangle-Mesh. (map #(displace % v) triangles))
   )
 )
 

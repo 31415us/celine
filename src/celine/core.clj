@@ -4,6 +4,7 @@
   (:require [celine.bitmap :as bitmap])
   (:require [celine.scenery :as scenery])
   (:require [celine.shader :as shader])
+  (:require [celine.obj :as obj])
   (:require [celine.util :as util])
   (:gen-class :main :true)
 )
@@ -34,5 +35,7 @@
 
 (def scene (scenery/make-scene cam screen (list elem5) (list light1)))
 
-(defn -main [& args] (shader/render-scene scene "img.png"))
+;(defn -main [& args] (shader/render-scene scene "img.png"))
+
+(defn -main [& args] (obj/parse-obj "./obj/icosahedron.obj"))
 
