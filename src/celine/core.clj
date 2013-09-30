@@ -30,12 +30,23 @@
 (def tr1 (geom/make-triangle (geom/make-vector 5.0 -1.0 -1.0) (geom/make-vector 5.0 1.0 -1.0) (geom/make-vector 5.0 -1.0 1.0)))
 (def elem5 (scenery/make-scene-element tr1 (color/make-r-color 0.1 0.4 0.2)))
 
+(def icosahedron (scenery/make-scene-element 
+                   (geom/displace (obj/parse-obj "./obj/icosahedron.obj") (geom/make-vector 1.0 0.0 0.0)) 
+                   some-color
+                 )
+)
+
+(def teapot (scenery/make-scene-element
+              (geom/displace (obj/parse-obj "./obj/teapot.obj") (geom/make-vector 5.0 0.0 0.0))
+              (color/make-r-color 0.5 0.2 0.1)
+            )
+)
+
 (def light1 (scenery/make-positional-light-source (geom/make-vector 0.0 5.0 10.0)))
 (def light2 (scenery/make-positional-light-source (geom/make-vector 5.0 -5.0 10.0)))
 
-(def scene (scenery/make-scene cam screen (list elem5) (list light1)))
+(def scene (scenery/make-scene cam screen (list teapot) (list light1)))
 
-;(defn -main [& args] (shader/render-scene scene "img.png"))
+(defn -main [& args] (shader/render-scene scene "img.png"))
 
-(defn -main [& args] (obj/parse-obj "./obj/icosahedron.obj"))
 
